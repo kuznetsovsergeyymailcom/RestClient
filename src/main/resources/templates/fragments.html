@@ -3,7 +3,6 @@
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
       xmlns:security="http://www.springframework.org/security/tags"
         xmlns:c="http://java.sun.com/jsp/jstl/core">
-<%@ page isELIgnored="false" %>
 
 <head>
     <meta charset="UTF-8"/>
@@ -106,7 +105,6 @@
 
         <div class="collapse navbar-collapse" id="navbarText">
             <ul class="navbar-nav side-nav bg-white">
-<!--                Roles: <div th:text="${user.roles.contains('USER')}">${user.roles.contains('USER')}</div>-->
 
                 <div th:if="${is_admin}">
                     <li class="nav-item">
@@ -125,9 +123,9 @@
             <ul class="navbar-nav ml-md-auto d-md-flex">
 
                          <span class="text-white align-text-right">
-                            <span sec:authorize="isAuthenticated()" style="display: inline-block;">
-                                        Logged in:<th:block th:text="${user.username}"/>
-                            </span> |
+<!--                            <span sec:authorize="isAuthenticated()" style="display: inline-block;">-->
+<!--                                        Logged in:<th:block th:text="${user.username}"/>-->
+<!--                            </span> |-->
                                         <a th:href="@{/logout}">Sign Out</a>
                         </span>
             </ul>
