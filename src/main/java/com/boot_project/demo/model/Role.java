@@ -1,12 +1,16 @@
 package com.boot_project.demo.model;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.security.core.GrantedAuthority;
+
 import java.util.Set;
 
-public class Role {
-
+public class Role implements GrantedAuthority {
     private Long id;
+
     private String name;
+
+    @JsonIgnore
     private Set<User> users;
 
     public Role() {
@@ -65,4 +69,8 @@ public class Role {
         return result;
     }
 
+    @Override
+    public String getAuthority() {
+        return name;
+    }
 }

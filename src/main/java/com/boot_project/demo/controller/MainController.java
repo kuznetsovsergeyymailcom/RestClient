@@ -5,6 +5,7 @@ import com.boot_project.demo.model.User;
 import com.boot_project.demo.service.RoleService;
 import com.boot_project.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -29,13 +30,37 @@ public class MainController {
         this.roleService = roleService;
     }
 
+    @GetMapping("/")
+    public void main(@AuthenticationPrincipal User user, HttpServletResponse response) throws IOException {
+        String url;
 
-    @RequestMapping(value = "/", method = {RequestMethod.GET, RequestMethod.POST})
+        if (user != null) {
+            if (user.getRoles().contains(new Role("ADMIN"))) {
+                url = "/admin/show";
+            } else {
+                url = "/user";
+            }
+        } else {
+            url = "/login";
+        }
+
+        response.sendRedirect(url);
+
+    }
+
+    @GetMapping("/login")
+    public String login() {
+
+        return "login";
+    }
+
+    @RequestMapping(value = "/admin/show", method = {RequestMethod.GET, RequestMethod.POST})
     public ModelAndView show(Model model, HttpServletResponse resp,
-                             User user) {
+                             @AuthenticationPrincipal User user) {
         ModelAndView modelAndView = new ModelAndView();
         model.addAttribute("users", userService.getAllUsers());
-
+        model.addAttribute("is_admin", user.getRoles().contains(new Role("ADMIN")));
+        modelAndView.addObject("user", user);
 
         modelAndView.setViewName("admin");
 
@@ -50,7 +75,7 @@ public class MainController {
         Set<Role> roles = getRoles(role);
 
         userService.addUser(new User(username, password, roles));
-        return "redirect:/";
+        return "redirect:/admin/show";
     }
 
     @PostMapping(value = "/admin/update")
@@ -62,7 +87,7 @@ public class MainController {
         Set<Role> roles = getRoles(role);
         Long user_id = Long.parseLong(id);
         userService.update(new User(user_id, username, password, roles));
-        resp.sendRedirect("/");
+        resp.sendRedirect("/admin/show");
     }
 
     @GetMapping(value = "/admin/remove")
@@ -70,13 +95,13 @@ public class MainController {
                              HttpServletResponse resp) throws IOException {
 
         if (id.isEmpty()) {
-            resp.sendRedirect("/");
+            resp.sendRedirect("/admin/show");
             return;
         }
 
         long parseLong = Long.parseLong(id);
         userService.remove(parseLong);
-        resp.sendRedirect("/");
+        resp.sendRedirect("/admin/show");
 
     }
 
@@ -92,7 +117,8 @@ public class MainController {
     }
 
     @RequestMapping(value = "/user", method = {RequestMethod.GET, RequestMethod.POST})
-    public String user(User user, Model model) {
+    public String user(@AuthenticationPrincipal User user, Model model) {
+        model.addAttribute("user", user);
         model.addAttribute("is_admin", user.getRoles().contains(new Role("ADMIN")));
 
         return "user";
